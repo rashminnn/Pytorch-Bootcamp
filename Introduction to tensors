@@ -1,0 +1,2278 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "fb7d060a",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:07.459139Z",
+     "iopub.status.busy": "2025-03-03T09:56:07.458927Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.158243Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.157353Z"
+    },
+    "papermill": {
+     "duration": 0.711684,
+     "end_time": "2025-03-03T09:56:08.159958",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:07.448274",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "7ed8cfe5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.179324Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.178994Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.298313Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.297397Z"
+    },
+    "papermill": {
+     "duration": 0.130229,
+     "end_time": "2025-03-03T09:56:08.299799",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.169570",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "__notebook__.ipynb\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!ls"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "1e9d54c1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.318656Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.318425Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.438245Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.437189Z"
+    },
+    "papermill": {
+     "duration": 0.1308,
+     "end_time": "2025-03-03T09:56:08.439673",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.308873",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "__notebook__.ipynb\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!dir\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "02e8890d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.458924Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.458638Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.641010Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.640170Z"
+    },
+    "papermill": {
+     "duration": 0.193517,
+     "end_time": "2025-03-03T09:56:08.642544",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.449027",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\u001b[33mhint: Using 'master' as the name for the initial branch. This default branch name\u001b[m\r\n",
+      "\u001b[33mhint: is subject to change. To configure the initial branch name to use in all\u001b[m\r\n",
+      "\u001b[33mhint: of your new repositories, which will suppress this warning, call:\u001b[m\r\n",
+      "\u001b[33mhint: \u001b[m\r\n",
+      "\u001b[33mhint: \tgit config --global init.defaultBranch <name>\u001b[m\r\n",
+      "\u001b[33mhint: \u001b[m\r\n",
+      "\u001b[33mhint: Names commonly chosen instead of 'master' are 'main', 'trunk' and\u001b[m\r\n",
+      "\u001b[33mhint: 'development'. The just-created branch can be renamed via this command:\u001b[m\r\n",
+      "\u001b[33mhint: \u001b[m\r\n",
+      "\u001b[33mhint: \tgit branch -m <name>\u001b[m\r\n",
+      "Initialized empty Git repository in /kaggle/working/.git/\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!git init"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "ba1ba66d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.662361Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.662094Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.792265Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.791177Z"
+    },
+    "papermill": {
+     "duration": 0.14181,
+     "end_time": "2025-03-03T09:56:08.793936",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.652126",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "!git remote add origin https://github.com/rashminnn/Pytorch-Bootcamp"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c10cb706",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.814015Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.813725Z",
+     "iopub.status.idle": "2025-03-03T09:56:08.933331Z",
+     "shell.execute_reply": "2025-03-03T09:56:08.932304Z"
+    },
+    "papermill": {
+     "duration": 0.131172,
+     "end_time": "2025-03-03T09:56:08.934839",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.803667",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "origin\thttps://github.com/rashminnn/Pytorch-Bootcamp (fetch)\r\n",
+      "origin\thttps://github.com/rashminnn/Pytorch-Bootcamp (push)\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!git remote -v"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "c17f6188",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:08.954135Z",
+     "iopub.status.busy": "2025-03-03T09:56:08.953884Z",
+     "iopub.status.idle": "2025-03-03T09:56:09.512343Z",
+     "shell.execute_reply": "2025-03-03T09:56:09.511315Z"
+    },
+    "papermill": {
+     "duration": 0.569849,
+     "end_time": "2025-03-03T09:56:09.513992",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:08.944143",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "!wget -q \"https://learnopencv.com/wp-content/uploads/2024/07/mnist_0.jpg\" -O \"mnist_0.jpg\"\n",
+    "!wget -q \"https://learnopencv.com/wp-content/uploads/2024/07/mnist_1.jpg\" -O \"mnist_1.jpg\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "e9c7d1b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:09.536738Z",
+     "iopub.status.busy": "2025-03-03T09:56:09.536458Z",
+     "iopub.status.idle": "2025-03-03T09:56:12.969401Z",
+     "shell.execute_reply": "2025-03-03T09:56:12.968614Z"
+    },
+    "papermill": {
+     "duration": 3.447395,
+     "end_time": "2025-03-03T09:56:12.971028",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:09.523633",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import torch \n",
+    "import matplotlib.pyplot as plt \n",
+    "import numpy as np \n",
+    "import cv2 as cv"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "2c908fa9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:12.990331Z",
+     "iopub.status.busy": "2025-03-03T09:56:12.989992Z",
+     "iopub.status.idle": "2025-03-03T09:56:12.994088Z",
+     "shell.execute_reply": "2025-03-03T09:56:12.993351Z"
+    },
+    "papermill": {
+     "duration": 0.014878,
+     "end_time": "2025-03-03T09:56:12.995281",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:12.980403",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "torch version : 2.5.1+cu121\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"torch version : {}\".format(torch.__version__))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "637f901e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.008698,
+     "end_time": "2025-03-03T09:56:13.013018",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.004320",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 1. Converting Images to Batched tensors\n",
+    "An image is made up of pixel arrays that represent the intensity of pixels in grayscale or the color values in RGB format. When working with deep learning models, it's often necessary to convert these images into tensors, which are the primary data structures used in PyTorch for handling and processing data.\n",
+    "\n",
+    "- Tensors: In PyTorch, tensors are multi-dimensional arrays similar to NumPy arrays, but with additional capabilities for GPU acceleration and automatic differentiation. Tensors are the fundamental building blocks for representing data and parameters in neural networks.\n",
+    "\n",
+    "- Batches: Batching is a technique where multiple data samples (images, in this case) are grouped together into a single tensor. This allows efficient processing of multiple samples simultaneously, to take advantage of the parallel processing capabilities of modern hardware.\n",
+    "\n",
+    "In the following block, we will see an example of converting two MNIST images into a single batched tensor of shape [2,3,28,28]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "b0fc5a60",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.031936Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.031691Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.050063Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.049466Z"
+    },
+    "papermill": {
+     "duration": 0.029229,
+     "end_time": "2025-03-03T09:56:13.051240",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.022011",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "digit_0_array_original = cv.imread(\"/kaggle/working/mnist_0.jpg\")\n",
+    "digit_1_array_original = cv.imread(\"/kaggle/working/mnist_1.jpg\")\n",
+    "\n",
+    "digit_0_array_gray = cv.imread(\"/kaggle/working/mnist_0.jpg\",cv.IMREAD_GRAYSCALE)\n",
+    "digit_1_array_gray = cv.imread(\"/kaggle/working/mnist_1.jpg\",cv.IMREAD_GRAYSCALE)\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "ac69b9f0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.069936Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.069692Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.415110Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.414188Z"
+    },
+    "papermill": {
+     "duration": 0.356244,
+     "end_time": "2025-03-03T09:56:13.416443",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.060199",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAABiIAAAF7CAYAAABfBJMKAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuNSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/xnp5ZAAAACXBIWXMAAA9hAAAPYQGoP6dpAAA4V0lEQVR4nO3de5TcdX038M/sJbub2+YC4X6RhoIXfKSgoIAIasMlIlTa+gAhXrEFUSlo20coCjTFRjxREBS12EK8AUKhPCnqAUqlnqetFhEQ1DaAhACBkIQke5/f8wcnK0tgdj4xX7LZvF7ncI6ZvGf2O7+Z+X3m6zuzU6uqqgoAAAAAAIACWrb0AgAAAAAAgPFLEQEAAAAAABSjiAAAAAAAAIpRRAAAAAAAAMUoIgAAAAAAgGIUEQAAAAAAQDGKCAAAAAAAoBhFBAAAAAAAUIwiAgAAAAAAKEYRQUOf+tSnolarbdJ1v/71r0etVouHHnpo8y4KgK2SmQKwbXHeB2BzME9gfFBEbEM2nHw3/NfZ2Rk777xzzJkzJ77whS/Es88+W3wNl19+eXz9619PXeemm26K3/u934vOzs7Yfffd4/zzz4/BwcFRr3fHHXdErVaL6667bhNXC8BL2Rpnyre//e045ZRTYu+9945arRZvectbmr7uQw89FLVaLT772c/mFwowDmyN5/0Ie4lm9PX1xaWXXhqHHnpoTJ8+PSZMmBA777xzHHfccfHNb34zhoaGtvQSgXFka5wn9hHNqdfr8Q//8A/x9re/Pbbbbrtob2+PWbNmxe///u/HlVdeGX19fVt6iWxhioht0AUXXBBXX311XHHFFXHmmWdGRMTHPvax2G+//eKee+4ZkT333HOjp6dnk37OvHnzoqenJ/bYY4/hy7In+yVLlsTxxx8f06ZNi0svvTSOP/74uOiii4bXDcCWtTXNlCuuuCL+8R//MXbbbbeYPn36Jq0DYFu3NZ337SVGt2LFijjkkEPiIx/5SEyePDnOPffc+PKXvxxnnnlmrFu3Lk466aRYsGDBll4mMA5tTfPEPmJ0PT09ccwxx8T8+fNj/fr1cc4558SVV14Zf/7nfx6dnZ1x+umnx+mnn76ll8kW1ralF8DL7+ijj44DDzxw+M9/+Zd/GbfddlvMnTs3jjvuuPj5z38eXV1dERHR1tYWbW2b9jRpbW2N1tbW32qt55xzTrz2ta+N733ve8PrmDp1aixYsCA++tGPxr777vtb3T4Av52taaZcffXVscsuu0RLS0u85jWv+a1uC2BbtTWd9+0lRjdv3rz4r//6r7j++uvjD/7gD0b83V/+5V/Gf/7nf8aDDz7Y8DZ6e3tjwoQJ0dLi3zkCzdua5ol9xOjOOuusuPXWW2PRokXx0Y9+dMTfnX322fHLX/4yvv/97ze8jcHBwajX6zFhwoSSS2UL8k6BiIg48sgj47zzzouHH344rrnmmuHLX+z38PX09MRHPvKR2G677WLKlClx3HHHxbJly6JWq8WnPvWp4dwLfw/fnnvuGffdd1/8y7/8y/BH8Bp9nO3++++P+++/P0477bQRA+f000+Pqqo26WPSG+7PL37xizjllFOiu7s7tt9++zjvvPOiqqr49a9/He985ztj6tSpseOOO8Yll1wy4vr9/f3xV3/1V3HAAQdEd3d3TJo0KQ477LC4/fbbN/pZTz/9dMybNy+mTp0a06ZNi/nz58dPf/rTqNVqGzXvDzzwQJx44okxY8aM6OzsjAMPPDBuuumm9P0DGAvG4kyJiNhtt9026/9JsmFNP/zhD+MjH/lIbL/99jFt2rT40Ic+FP39/bFq1ao49dRTY/r06TF9+vT4xCc+EVVVjbiNz372s/GmN70pZs6cGV1dXXHAAQe86Hxr9jhFRCxbtize9773xQ477BAdHR3x6le/Ov7u7/5us91vgBcai+d9e4nR9xI/+tGP4tZbb43TTjttoxJigwMPPDBOPvnk4T9v+JVV3/rWt+Lcc8+NXXbZJSZOnBhr1qyJlStXxjnnnBP77bdfTJ48OaZOnRpHH310/PSnPx2+/tq1a2PSpEkb/Z9UERGPPvpotLa2xt/8zd+MunZgfBqL8yTCPmI0v/71r+OrX/1qHHXUUS96fo+I2HvvvUd8IuL5v7Jq0aJF8Tu/8zvR0dER999/f1Pzsqqq2HPPPeOd73znRj+rt7c3uru740Mf+tCoa+flpYhg2Lx58yIi4nvf+17D3Hve85649NJL45hjjonPfOYz0dXVFccee+yot79o0aLYddddY999942rr746rr766vjkJz/5kvn/+q//iogY0ZBHROy8886x6667Dv/9pvjjP/7jqNfrcfHFF8dBBx0UF110USxatCje/va3xy677BKf+cxnYvbs2XHOOefEnXfeOXy9NWvWxFe/+tV4y1veEp/5zGfiU5/6VKxYsSLmzJkTd99993CuXq/HO97xjvjmN78Z8+fPj7/+67+O5cuXx/z58zday3333RcHH3xw/PznP4+/+Iu/iEsuuSQmTZoUxx9/fNxwww2bfB8BtqSxNlNKOvPMM+OXv/xlfPrTn47jjjsurrzyyjjvvPPiHe94RwwNDcWCBQvi0EMPjYULF8bVV1894rqf//znY//9948LLrggFixYEG1tbfGHf/iHccstt4zINXucnnjiiTj44IPjBz/4QXz4wx+Oz3/+8zF79ux4//vfH4sWLSp5GIBt3Fg779tLjL6XuPnmmyMi4pRTTkkfgwsvvDBuueWWOOecc2LBggUxYcKE+J//+Z+48cYbY+7cufG5z30uPv7xj8fPfvazOPzww+Oxxx6LiIjJkyfHCSecEN/+9rc3+u6Jb37zm1FV1YjiA9j2jLV5UtJ42UcsWbIkhoaGNmmeXHXVVXHppZfGaaedFpdccknMmDGjqXlZq9XilFNOiSVLlsTKlStH3ObNN98ca9as2aT1UFjFNuOqq66qIqL6j//4j5fMdHd3V/vvv//wn88///zq+U+TH//4x1VEVB/72MdGXO8973lPFRHV+eefv9HPW7p06fBlr371q6vDDz+8qfUuXLiwiojqkUce2ejvXv/611cHH3xww+vffvvtVURU11577Ub357TTThu+bHBwsNp1112rWq1WXXzxxcOXP/PMM1VXV1c1f/78Edm+vr4RP+eZZ56pdthhh+p973vf8GXXX399FRHVokWLhi8bGhqqjjzyyCoiqquuumr48re+9a3VfvvtV/X29g5fVq/Xqze96U3V3nvv3fA+AmwpW9tMeaHsdZcuXVpFRLVw4cKN1jRnzpyqXq8PX/7GN76xqtVq1Z/8yZ8MX7Zh1rzwZ65fv37En/v7+6vXvOY11ZFHHjl8WeY4vf/976922mmn6qmnnhqRffe73111d3dv9PMAmrW1nfftJUbfS5xwwglVRFSrVq0acXlPT0+1YsWK4f+eeeaZjY7LXnvttdFM6e3trYaGhkZctnTp0qqjo6O64IILhi+79dZbq4iolixZMiL72te+dpPnOrD12NrmyQvZR2zsrLPOqiKiuvvuu0dc3tfXN2KePP+2NxyXqVOnVk8++eSI6zU7Lx988MEqIqorrrhiRPa4446r9txzzxHHlrHBJyIYYfLkyfHss8++5N//8z//c0TERl8wU+IL3zZ8EVFHR8dGf9fZ2bnJX1QUEfGBD3xg+H+3trbGgQceGFVVxfvf//7hy6dNmxb77LNP/M///M+I7IbfVVev12PlypUxODgYBx54YPzkJz8Zzv3zP/9ztLe3xwc/+MHhy1paWuKMM84YsY6VK1fGbbfdFn/0R38Uzz77bDz11FPx1FNPxdNPPx1z5syJX/7yl7Fs2bJNvp8AW9JYmiklvf/97x/xUfGDDjpoo5myYdY8f6ZExPDvvY2IeOaZZ2L16tVx2GGHbTRTIkY/TlVVxfXXXx/veMc7oqqq4Zny1FNPxZw5c2L16tUjbhdgcxtL5317idH3EmvWrImI5x635/vSl74U22+//fB/hx566EbXnT9//ogZFvHcsd7wq0uGhobi6aefjsmTJ8c+++wz4v697W1vi5133jkWL148fNm9994b99xzj3+9CkTE2JonJY2XfcRLzZP/+3//74h58vwvDN/gXe96V2y//fYjLmt2Xv7u7/5uHHTQQSPmycqVK2PJkiVx8sknb/TrvNjyfFk1I6xduzZmzZr1kn//8MMPR0tLS7ziFa8Ycfns2bM3+1o2nFT7+vo2+rve3t6N3vhm7L777iP+3N3dHZ2dnbHddtttdPnTTz894rK///u/j0suuSQeeOCBGBgYGL78+cfk4Ycfjp122ikmTpw44rovPE6/+tWvoqqqOO+88+K888570bU++eSTscsuuzR/5wDGiLE0U0p6sZkS8dzvkn3h5c8888yIy/7pn/4pLrroorj77rtHzLvnv2lu9jitWLEiVq1aFVdeeWVceeWVL7rWJ598ssl7BZA3ls779hLPabSXmDJlSkQ897htmF0Rz/2fQhu+jPXss8/e6FcovXC9G9Tr9fj85z8fl19+eSxdunTE9WbOnDn8v1taWuLkk0+OK664ItavXx8TJ06MxYsXR2dnZ/zhH/7hi64V2LaMpXlS0njZRzx/njzfIYccMvwF1QsXLoy77rpro+u+2DyJaG5eRkSceuqp8eEPfzgefvjh2GOPPeLaa6+NgYGB4V/xxdiiiGDYo48+GqtXrx4zJ+6ddtopIiKWL1++0Ul4+fLl8YY3vGGTb7u1tbWpyyJixBcCXXPNNfGe97wnjj/++Pj4xz8es2bNGv5Ctf/+7/9Or6Ner0dExDnnnBNz5sx50cxYeTwAMsbaTCnppebHi13+/Jnyr//6r3HcccfFm9/85rj88stjp512ivb29rjqqqviG9/4RnodG2bKKaec8qK/Rzwi4rWvfW36dgGaMdbO+/YSz2n0eOy7774R8dynEQ455JDhy3fbbbfhYzZ9+vR46qmnNrruixU5CxYsiPPOOy/e9773xYUXXhgzZsyIlpaW+NjHPja81g1OPfXUWLhwYdx4443xv//3/45vfOMbMXfu3BGFCLBtGmvzpKTxso94/jz5X//rfw1fvv3228fb3va2iIgRXz7+fC82TzLz8t3vfnecddZZsXjx4vg//+f/xDXXXBMHHnhg7LPPPg3uMVuKIoJhG7745qXexEZE7LHHHlGv12Pp0qWx9957D1/+q1/9qqmfkflY1Ote97qIiPjP//zPERuFxx57LB599NE47bTTmr6tzeW6666LvfbaK7773e+OuC/nn3/+iNwee+wRt99++/C/8Nnghcdpr732ioiI9vb24ZMzwHgw1mbKWHT99ddHZ2dn3HrrrSN+dchVV101Itfscdp+++1jypQpMTQ0ZKYAL7uxdt63lxjd3Llz4+KLL47FixePKCI21XXXXRdHHHFEfO1rXxtx+apVqzb6tMhrXvOa2H///WPx4sWx6667xiOPPBKXXnrpb70GYOs31ubJWDTW9hFHH310tLa2xuLFi+Pkk09OX/+Fmp2XEREzZsyIY489dvhn33XXXaN+uTZbju+IICIibrvttrjwwgvjFa94RcOTxoZBcPnll4+4vNk3jZMmTYpVq1Y1lX31q18d++67b1x55ZUjPtZ7xRVXRK1WixNPPLGp29mcNrTSz2+i/9//+3/xox/9aERuzpw5MTAwEF/5yleGL6vX6/HFL35xRG7WrFnxlre8Jb785S/H8uXLN/p5K1as2JzLB3hZjMWZMha1trZGrVYbMeMeeuihuPHGG0fkmj1Ora2t8a53vSuuv/76uPfeezf6eWYKUMpYPO/bS4x+3j/kkEPi7W9/e1x55ZXxj//4jy+aef5aR9Pa2rpR/tprr33J76mYN29efO9734tFixbFzJkz4+ijj276ZwHj01icJ2PRWNtH7L777vG+970vlixZEpdddtmLZrLz5IXXebF5ucG8efPi/vvvj49//OPR2toa7373u5v+Wby8fCJiG7RkyZJ44IEHYnBwMJ544om47bbb4vvf/37ssccecdNNN0VnZ+dLXveAAw6Id73rXbFo0aJ4+umn4+CDD45/+Zd/iV/84hcRMXqrfMABB8QVV1wRF110UcyePTtmzZoVRx555EvmFy5cGMcdd1z8/u//frz73e+Oe++9Ny677LL4wAc+EK985Ss37QD8FubOnRvf/e5344QTTohjjz02li5dGl/60pfiVa961YjfhXf88cfHG97whjj77LPjV7/6Vey7775x0003xcqVKyNi5HH64he/GIceemjst99+8cEPfjD22muveOKJJ+JHP/pRPProo/HTn/70Zb+fAM3ammbKnXfeGXfeeWdEPPdmet26dXHRRRdFRMSb3/zmePOb35y9+7+VY489Nj73uc/FUUcdFSeddFI8+eST8cUvfjFmz54d99xzz3Auc5wuvvjiuP322+Oggw6KD37wg/GqV70qVq5cGT/5yU/iBz/4wfAcAthUW9N5315i9L3ENddcE0cddVQcf/zxcfTRR8fb3va2mD59ejz++OPxgx/8IO68886mC4K5c+fGBRdcEO9973vjTW96U/zsZz+LxYsXD39y44VOOumk+MQnPhE33HBD/Omf/mm0t7c39XOA8WFrmif2EaPvIxYtWhRLly6NM888M771rW/FO97xjpg1a1Y89dRTcdddd8XNN9/c9K9LanZePv94zJw5M6699to4+uijG36/CFtYxTbjqquuqiJi+L8JEyZUO+64Y/X2t7+9+vznP1+tWbNmo+ucf/751QufJuvWravOOOOMasaMGdXkyZOr448/vnrwwQeriKguvvjijX7e0qVLhy97/PHHq2OPPbaaMmVKFRHV4YcfPuq6b7jhhup1r3td1dHRUe26667VueeeW/X39496vdtvv72KiOraa6/d6P6sWLFiRHb+/PnVpEmTNrqNww8/vHr1q189/Od6vV4tWLCg2mOPPaqOjo5q//33r/7pn/6pmj9/frXHHnuMuO6KFSuqk046qZoyZUrV3d1dvec976nuuuuuKiKqb33rWyOy//3f/12deuqp1Y477li1t7dXu+yySzV37tzquuuuG/V+AmwJW+NM2fDzX+y/888/v+F1ly5dWkVEtXDhwo3W9B//8R8v+nOamTVf+9rXqr333rvq6Oio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\n",
+      "text/plain": [
+       "<Figure size 2000x1000 with 4 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "fig ,axs = plt.subplots(1,4 , figsize = (20,10))\n",
+    "\n",
+    "axs[0].imshow(digit_0_array_original , cmap= 'gray' , interpolation = 'none' )\n",
+    "axs[0].set_title(\"Digit 0 Image\")\n",
+    "axs[0].axis('off')\n",
+    "\n",
+    "axs[1].imshow(digit_1_array_original , cmap= 'gray' , interpolation = 'none' )\n",
+    "axs[1].set_title(\"Digit 1 Image\")\n",
+    "axs[1].axis('off')\n",
+    "\n",
+    "axs[2].imshow(digit_0_array_gray , cmap= 'gray' , interpolation = 'none' )\n",
+    "axs[2].set_title(\"Digit 0 Image Gray\")\n",
+    "axs[2].axis('off')\n",
+    "\n",
+    "axs[3].imshow(digit_0_array_gray , cmap= 'gray' , interpolation = 'none' )\n",
+    "axs[3].set_title(\"Digit 1 Image Gray\")\n",
+    "axs[3].axis('off')\n",
+    "\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "c7ed3153",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.436428Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.436154Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.440953Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.440112Z"
+    },
+    "papermill": {
+     "duration": 0.015914,
+     "end_time": "2025-03-03T09:56:13.442161",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.426247",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(28, 28, 3)"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "digit_0_array_original.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "f936b613",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.462182Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.461915Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.466696Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.465881Z"
+    },
+    "papermill": {
+     "duration": 0.016444,
+     "end_time": "2025-03-03T09:56:13.468070",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.451626",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "min 0\n",
+      "max 255\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f'min {np.min(digit_0_array_original)}')\n",
+    "print(f'max {np.max(digit_0_array_original)}')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "aa8457a2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.488130Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.487858Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.494192Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.493374Z"
+    },
+    "papermill": {
+     "duration": 0.017627,
+     "end_time": "2025-03-03T09:56:13.495388",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.477761",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[  0,   0,   0,   0,   7,   1,   0,   3,   0,  18,   0,   3,   0,\n",
+       "          0,   3,   0,   0,   9,   0,   2,   0,  11,   0,   1,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   7,   7,   0,   0,   0,   0,   0,   2,   8,   0,   4,   0,\n",
+       "          0,   0,   6,   4,   0,   2,   3,   2,   0,   0,  11,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  1,   0,   2,   6,   4,   9,   9,   0,   0,   2,   0,   3,   1,\n",
+       "         15,   0,   2,  16,   0,   2,   7,   0,   0,  22,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [ 12,   0,   0,   8,   1,   0,   0,   0,   2,   0,   0,   0,   0,\n",
+       "         14,   0,   0,   0,   7,   9,   0,   7,   0,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   3,   5,   0,   0,   4,  16,   0,  10,  14,   6,  29,\n",
+       "        122, 182, 255, 255, 152,  66,  26,   0,   0,  15,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   7,   5,   0,   9,  12,   0,   0,   4,   0,  49, 184, 255,\n",
+       "        255, 232, 255, 255, 231, 246, 227,  64,   0,   0,   4,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  2,  15,   0,   0,   6,   0,   0,  13,   6, 148, 241, 255, 248,\n",
+       "        236, 194, 151, 192, 253, 252, 244, 231, 121,   5,   6,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   7,   0,   0,   7,   0,  51, 191, 223, 254, 247, 248, 148,\n",
+       "         30,   0,   6,  24,   0,  32, 116, 235, 255, 166,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   4,   0,   0,  10,   0, 132, 246, 255, 247, 199,  77,   0,\n",
+       "          0,   2,   0,   0,   7,   0,   0,  60, 238, 226,  46,   2,   0,\n",
+       "          1,   5],\n",
+       "       [  0,   0,   4,   0,  14,  59, 203, 255, 255, 201,  45,   1,  15,\n",
+       "          0,   0,   1,   0,   4,   2,   0,   0, 137, 246, 169,   7,   0,\n",
+       "          0,   4],\n",
+       "       [  2,   0,   9,   0,   4, 127, 252, 252, 198,  32,   0,   0,   0,\n",
+       "          5,   0,   3,   4,   0,   0,   1,   5,  78, 255, 222,  16,   1,\n",
+       "          0,   3],\n",
+       "       [  5,   0,   8,   0,   0, 150, 254, 247,  46,   7,   0,   8,   9,\n",
+       "          0,   4,   3,   3,   0,   0,   4,   0,  19, 248, 254,  25,   4,\n",
+       "          0,   2],\n",
+       "       [  0,   1,   2,   0,   1, 150, 246, 255,  17,   9,   0,   4,   0,\n",
+       "          0,   9,   0,   0,   0,   0,   6,   0,  46, 254, 255,  30,   5,\n",
+       "          0,   2],\n",
+       "       [  0,   1,   0,   0,   6, 139, 241, 251,  43,   0,  15,   6,   0,\n",
+       "          9,   7,   0,   0,   0,   0,   3,  19, 120, 255, 240,  31,   5,\n",
+       "          0,   3],\n",
+       "       [  2,   0,   0,   2,   1, 133, 249, 197,   0,  27,   0,   0,  18,\n",
+       "          0,   0,   8,   0,   7,   1,   0,   0, 153, 245, 255,  29,   3,\n",
+       "          0,   5],\n",
+       "       [  6,   0,   0,   4,   0, 142, 255, 156,   1,   0,   4,   0,   0,\n",
+       "          6,   0,   0,   0,   3,   0,  10,  45, 245, 255, 250,  26,   2,\n",
+       "          0,   6],\n",
+       "       [  0,   0,   0,   0,   5, 152, 239,  63,   0,  14,   0,   4,   0,\n",
+       "          1,   8,   0,   9,   0,   0,   5, 236, 255, 255, 152,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   9,  11,   0,   1, 126, 255,  59,   0,   1,   0,   5,   0,\n",
+       "          1,   2,   0,   0,   0,  27, 169, 255, 247, 217,  26,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   2,   0,  25,  97, 248,  83,   7,   0,   6,   0,   1,\n",
+       "          0,   0,   0,   5,  47, 171, 255, 243, 255, 148,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  2,   0,  10,   0,   0,  13, 219, 255,  15,   0,  11,   0,   9,\n",
+       "          6,   0,   7,  97, 239, 249, 243, 255, 163,  46,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [ 15,   0,   0,   2,   6,   0, 100, 232, 246, 166, 104,  24,  32,\n",
+       "         72, 128, 180, 245, 247, 255, 255, 174,   4,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   8,   3,   0,   2,  63, 226, 254, 248, 255, 246, 255,\n",
+       "        255, 255, 255, 255, 255, 237,  88,  13,  13,   0,  17,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   2,   0,   0,   0,   0,   0,  18, 199, 235, 250, 255, 255,\n",
+       "        255, 255, 242, 255, 169,  43,  18,   0,   0,  11,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  2,   5,   0,   4,   1,   5,   8,   0,   9, 104, 169, 241, 248,\n",
+       "        255, 247, 220,  95,  10,   7,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0],\n",
+       "       [  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,\n",
+       "          0,   0]], dtype=uint8)"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "digit_0_array_gray"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "344b17cf",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009838,
+     "end_time": "2025-03-03T09:56:13.514977",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.505139",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 1.1. Convert Numpy array to Torch tensors\n",
+    "\n",
+    "* when we do any numerical calculation on images specially when we are trying to use it in a neural network we need to convert it to float32 otherwise there will be loss of precision,"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "33420a34",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.535604Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.535327Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.571397Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.570766Z"
+    },
+    "papermill": {
+     "duration": 0.047672,
+     "end_time": "2025-03-03T09:56:13.572678",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.525006",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "img_tensor_0 = torch.tensor(digit_0_array_original , dtype = torch.float32)/255.0  # 1 is white 0 is black \n",
+    "img_tensor_1 = torch.tensor(digit_1_array_original , dtype = torch.float32)/255.0"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "673132d7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.593514Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.593246Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.609552Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.608807Z"
+    },
+    "papermill": {
+     "duration": 0.028224,
+     "end_time": "2025-03-03T09:56:13.610876",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.582652",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Shape of Normalised Digit 0 Tensor:  torch.Size([28, 28, 3])\n",
+      "Normalised Min pixel value: 0.0 ; Normalised Max pixel value : 1.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Shape of Normalised Digit 0 Tensor: \", img_tensor_0.shape)\n",
+    "print(f\"Normalised Min pixel value: {torch.min(img_tensor_0)} ; Normalised Max pixel value : {torch.max(img_tensor_0)}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "152097e8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.631266Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.631063Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.713602Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.712759Z"
+    },
+    "papermill": {
+     "duration": 0.094131,
+     "end_time": "2025-03-03T09:56:13.714891",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.620760",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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tufk5AStWrUKiouLbduqVasCSbUeQ11OPt4nW758eSAp+NOf/mTbMjIygvz8fPv7+PHjg1AoFBQWFtq2AwcOBE2bNg0kBVu2bIna34nH58MPP4w6PqfTuXPn4Jprrqm1vaioKJAUPPXUU1+bz8/PD5KTk6O21Zw37777rm17/fXXA0lBJBIJtm3bZtvnzZsXSArWrFlj2+o6N5577rlAUvDWW2/ZtgEDBgSNGzcOdu7cads2bdoUxMfHByc+BW3dujWIi4sLHnrooaj7/Ne//hXEx8fX2o6GwctHZ0G7du00YsQIzZ8/X7t3767zNq+++qok6fbbb4/aPmnSJEnSK6+8ErW9bdu2ysvLq/O+Ro4cGfWGaW5uroIg0M033xx1u9zcXO3YsUOVlZW27cT3JUpKSrR//3717NlTn3/+edRLK6cTiUSUmJiotWvX6tChQ3XeZvXq1SouLtbQoUO1f/9++xMXF6fc3FytWbNGkrR7926tX79e+fn5SktLs/x1112n7Ozseq/p69R8Uufw4cOnvM1rr72mbt26Rb1R3LRpU/3yl7/8RtZworKysjqvQGretykrK/O63+zsbHXr1s3+npubK0m65pprdOGFF9ba/vnnn9u2E8+N8vJy7d+/X1deeaUk6aOPPpIkVVVV6R//+IcGDhwYdVXcvn17XX/99VFrWbZsmaqrqzV48OCo73/Lli3VoUMH+/6jYVEKZ8m9996rysrKU763sG3bNjVq1Ejt27eP2t6yZUulp6dr27ZtUdvbtm17yn2d+MMtyZ5IT365IS0tTdXV1VFP9u+884769Omj5ORkpaenq1mzZpoyZYokOZVCOBzWrFmztHLlSrVo0UJXX321Hn30Ue3Zs8dus2nTJklfPSE1a9Ys6s+qVau0b98+SbLH3qFDh1r7OfFlszNRWloqSUpJSTnlbbZt21br+yOpzm1nKhKJ1Hq/R/rqybjm6z5czg1JUYV+8OBB/fa3v1WLFi0UiUTUrFkzOw9rzo19+/aprKysXsdp06ZNCoJAHTp0qPX937Bhg33/0bB4T+EsadeunYYPH6758+fr7rvvPuXt6nojri5f96QQFxfntD34//+h9bPPPtO1116rjh07avbs2brggguUmJioV199VX/4wx9UXV1dr7XVmDhxogYMGKAVK1bo9ddf13333aeZM2fqzTffVNeu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\n",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "plt.imshow(img_tensor_0,cmap=\"gray\")\n",
+    "plt.title(\"Normalised Digit 0 Image\")\n",
+    "plt.axis('off')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "0ad592f4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.735636Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.735377Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.768400Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.767586Z"
+    },
+    "papermill": {
+     "duration": 0.0446,
+     "end_time": "2025-03-03T09:56:13.769683",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.725083",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "tensor([[[0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]],\n",
+       "\n",
+       "        [[0.0000, 0.0000, 0.0000],\n",
+       "         [0.0275, 0.0275, 0.0275],\n",
+       "         [0.0275, 0.0275, 0.0275],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]],\n",
+       "\n",
+       "        [[0.0039, 0.0039, 0.0039],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0078, 0.0078, 0.0078],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]],\n",
+       "\n",
+       "        ...,\n",
+       "\n",
+       "        [[0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]],\n",
+       "\n",
+       "        [[0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]],\n",
+       "\n",
+       "        [[0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         ...,\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000],\n",
+       "         [0.0000, 0.0000, 0.0000]]])"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "img_tensor_0\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c6c78457",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009888,
+     "end_time": "2025-03-03T09:56:13.789616",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.779728",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 1.2 Creating an input batch"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "ec7d98b1",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.810324Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.810097Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.814541Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.813944Z"
+    },
+    "papermill": {
+     "duration": 0.016069,
+     "end_time": "2025-03-03T09:56:13.815756",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.799687",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "torch.Size([2, 28, 28, 3])"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "batch_tensor = torch.stack([img_tensor_0 , img_tensor_1]) # This batch processes all together in parallel\n",
+    "\n",
+    "batch_tensor.shape\n",
+    "\n",
+    "# torch.Size([2, 28, 28, 3]) Number of images(samples) or shape ,height,width , number of channels "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0e6d797e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009758,
+     "end_time": "2025-03-03T09:56:13.835561",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.825803",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "Additionally in PyTorch, image tensors typically follow the shape convention [N ,C ,H ,W] unlike tensorflow which follows [N, H, W, C].\n",
+    "\n",
+    "Therefore, we need to bring the color channel to the second dimension. This can be achieved using either torch.view() or torch.permute()."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "8677a48e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.856269Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.856066Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.860389Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.859772Z"
+    },
+    "papermill": {
+     "duration": 0.016002,
+     "end_time": "2025-03-03T09:56:13.861562",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.845560",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "torch.Size([2, 3, 28, 28])"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "batch_input = batch_tensor.permute(0,3,1,2)\n",
+    "batch_input.shape"
+   ]
+  },
+  {
+   "attachments": {
+    "4650bb28-bed0-46b0-bf00-c5b75642771f.jpg": {
+     "image/jpeg": "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T6AAAAAAAAAAAApc5N1PoAAAAAAAAAAAClzk3U+gAAAAAAAAAAAKXOTdSAAAAAAAAAAAAU+c9lAAAAAAAAAAAAMY/wD/xAAYAQEAAwEAAAAAAAAAAAAAAAAAAQIDBP/aAAgBAhAAAADooAAAAABrlkAAAAABvXIAAAAADeuQAAAAAG9cgAAAAAN65AAAAAAb1yAAAAAA3rz1AANWMgABrvXkzACUT0uUBeKgT0715M7QvCJlCk9LlsRIISI6d68mYACelyWgkCJRLp3rkAAAAABvXIAAAAADeuQAAAAAG9cgAAAAAN65AAAAAAb1yAAAAAA3rkAAAAABvXIAAAAADeuQAAAAAG9cgAAAAAN682YACd3OAAE7715M7RMxMSQrPS5S9VkxKFCenevJmmLAgielypmItEWiLFU9O9eTMmyEqwT0uVaYiUSiZUT0715My0q2IqT0uVa1YspeqxFZ6d681AAE7MAAAnbeuQAAAAAG9cgAAAAAN65AAAAAAbzQAAAAADX/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAgEDBP/aAAgBAxAAAADjQAAAAAEdLAAAAAA43YAAAAAHG7AAAAAA43YAAAAAHG7AAAAAA43YAAAAAHG+lAAMlWgADJ4327ZrBrDY4vRoEbQEceN9u0tkAuOLuAG4GceN9ugACeTsADcGcuN2AAAAABxuwAAAAAON2AAAAABxuwAAAAAON2AAAAABxuwAAAAAON2AAAAABxuwAAAAAON2AAAAABxuwAAAAAON9bAATDpoAAmON9u0hm4a2eL0ajWAK1HHjfbthOjKNji9G5ms1msKRx4327GS1jaI4vRs5u42d3MVsceN9uxONw2iOL0bObsqnWG1HHjfWgAGQ6AABkcbsAAAAADjdgAAAAAcbsAAAAADioAAAAACP//EADEQAAIBBAAFBAICAgIDAAMAAAMEAgABBRQQERIzNAYTIDAyQBVQNWAhMSIjNhYkJv/aAAgBAQABCAC1r3vytrnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuetc9a561z1rnrXPWuepBLG17ypfvh/wBMf8QvBfvh/wBMf8QvBfvh/wBMf8QvBfvh/sLDsU7nPXjWvGteNa8a141rxrXjWvGteNa8a141rxrXjWvGteNCh7Too2+t/wAQvBfvh/sLeW9828trOAXsScRDmSSmZucy8C/K3nC+x/xC8F++H7zFsEdyX2p1tTranW1Otu9rw6/27eW9886+pFlAV2HFnQsKAULZw2ECL5W84X2P+IXgv3w/e72OMGViTuOFMfiL9y3lvfMjK4pWiShsLlnKA/lbzhfY/wCIXgv3w/e72OBLRkOcZXWAtlcbGNMfiL9y3lvfPMAUkUwRHiRXDljZcIQT9NkD8recL7H/ABC8F++H73exwnCJIThIGDUAURODH4i/ct5b3zLhAkaMzYePHAsSSUwyqpolj8recL7H/ELwX74fvZBcwOm2nkK08hWnkK08hUlmp2hYn7dvLe+eVYyK9zFjdmY8fdkir2RgbGSY+VvOF9j/AIheC/fD/YW8t755MGSPdgNRA7IGiVRHITNjos/K3nC+x/xC8F++H+wswuFl2Jd5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5Kt5KgnAZ4ft/W/wCIXgv3w/6Y/wCIXgv3w/6Y/wCIXgv3w8bkPcpbR62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62a62aAQk/ctP4XIe5S2j1s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s11s0AhJ+5afB/xC8F++HjbvMfvLfkx8bd5j9C/qc0RmYlTuVQQlCLKWRTfjOS33rfkxxf8AELwX74eNu8x8JMLxNEEvhAoydfRxbcXSDczHD3B3JcfzaaXTDIxyHAEfuFiwCYbmgsyBsEDg4rfkx8bd5j9CyM7CbtYPueyP3XV3zShdVIDoYzs19635McX/ABC8F++HjbvMfB5283m34xlGcYzjm+XMFYTl0n5Sj1RlGvTSdut41yMulQymSp2brWWxgYZGx1zYjGwzMLiwrQaU2Vc+RSVpwvKUbBSsX1LkbXyLLZ80VS1z5Qt8AMwS5LUzaoEn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"
+    }
+   },
+   "cell_type": "markdown",
+   "id": "ae31f652",
+   "metadata": {
+    "papermill": {
+     "duration": 0.009876,
+     "end_time": "2025-03-03T09:56:13.881598",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.871722",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "# 2. Introduction to Tensors and its Operations\n",
+    "We have seen the importance of tensors, now will understand it from ground up. Tensor is simply a fancy name given to matrices. If you are familiar with NumPy arrays, understanding and using PyTorch Tensors will be very easy. A scalar value is represented by a 0-dimensional Tensor. Similarly, a column/row matrix is represented using a 1-D Tensor and so on. Some examples of Tensors with different dimensions are shown for you to visualize and understand.\n",
+    "\n",
+    "![PyTorch-Tensors.jpg](attachment:4650bb28-bed0-46b0-bf00-c5b75642771f.jpg)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ed704d76",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010088,
+     "end_time": "2025-03-03T09:56:13.901768",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.891680",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "##  2.1 Construct your first tensor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "c5ce2647",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.922434Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.922221Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.929134Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.928478Z"
+    },
+    "papermill": {
+     "duration": 0.018505,
+     "end_time": "2025-03-03T09:56:13.930298",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.911793",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([1., 1., 1., 1., 1.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "a = torch.ones(5)\n",
+    "print(a)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "dc91be5b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.951374Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.951137Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.957513Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.956878Z"
+    },
+    "papermill": {
+     "duration": 0.018366,
+     "end_time": "2025-03-03T09:56:13.958925",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.940559",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([0., 0., 0., 0., 0.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "b= torch.zeros(5)\n",
+    "print(b)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "f7082b93",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:13.980418Z",
+     "iopub.status.busy": "2025-03-03T09:56:13.980189Z",
+     "iopub.status.idle": "2025-03-03T09:56:13.984725Z",
+     "shell.execute_reply": "2025-03-03T09:56:13.984058Z"
+    },
+    "papermill": {
+     "duration": 0.016508,
+     "end_time": "2025-03-03T09:56:13.986028",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.969520",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([1., 2., 3., 4., 5.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "c = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])\n",
+    "print(c)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f10f8953",
+   "metadata": {
+    "papermill": {
+     "duration": 0.0103,
+     "end_time": "2025-03-03T09:56:14.006607",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:13.996307",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "In all the above cases, we have created vectors or Tensors of dimension 1. Now, let’s create some tensors of higher dimension."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "c1fc5319",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.027928Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.027659Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.035335Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.034693Z"
+    },
+    "papermill": {
+     "duration": 0.019592,
+     "end_time": "2025-03-03T09:56:14.036440",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.016848",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([[0., 0.],\n",
+      "        [0., 0.],\n",
+      "        [0., 0.]])\n",
+      "tensor([[1., 1.],\n",
+      "        [1., 1.],\n",
+      "        [1., 1.]])\n",
+      "tensor([[1., 2.],\n",
+      "        [3., 4.]])\n",
+      "tensor([[[1., 2.],\n",
+      "         [3., 4.]],\n",
+      "\n",
+      "        [[5., 6.],\n",
+      "         [7., 8.]]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "d = torch.zeros(3,2)\n",
+    "print(d)\n",
+    "\n",
+    "e = torch.ones(3,2)\n",
+    "print(e)\n",
+    "\n",
+    "f = torch.tensor([[1.0, 2.0],[3.0, 4.0]])\n",
+    "print(f)\n",
+    "\n",
+    "# 3D Tensor\n",
+    "g = torch.tensor([[[1., 2.], [3., 4.]], [[5., 6.], [7., 8.]]])\n",
+    "print(g)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "094b812e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.057690Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.057461Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.061905Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.061250Z"
+    },
+    "papermill": {
+     "duration": 0.016339,
+     "end_time": "2025-03-03T09:56:14.063125",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.046786",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "torch.Size([2, 2])\n",
+      "torch.Size([3, 2])\n",
+      "torch.Size([2, 2, 2])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f.shape)\n",
+    "\n",
+    "print(e.shape)\n",
+    "\n",
+    "print(g.shape)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "436fc86e",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010125,
+     "end_time": "2025-03-03T09:56:14.083635",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.073510",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.2. Access an element in Tensor"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 26,
+   "id": "3eb1139c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.105291Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.105091Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.109158Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.108303Z"
+    },
+    "papermill": {
+     "duration": 0.016406,
+     "end_time": "2025-03-03T09:56:14.110410",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.094004",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor(3.)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(c[2])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "219db4dd",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.132090Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.131887Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.135859Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.134961Z"
+    },
+    "papermill": {
+     "duration": 0.01636,
+     "end_time": "2025-03-03T09:56:14.137101",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.120741",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor(3.)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f[1,0])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "id": "a7c39671",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.193868Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.193572Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.199288Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.198466Z"
+    },
+    "papermill": {
+     "duration": 0.053012,
+     "end_time": "2025-03-03T09:56:14.200470",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.147458",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor(5.)\n",
+      "tensor(5.)\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(g[1,0,0])\n",
+    "print(g[1][0][0])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "2a55b6ac",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.222359Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.222153Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.230849Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.230128Z"
+    },
+    "papermill": {
+     "duration": 0.021085,
+     "end_time": "2025-03-03T09:56:14.232124",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.211039",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([[1., 2.],\n",
+      "        [3., 4.]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f[:])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "id": "4a5f22eb",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.254036Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.253805Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.258175Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.257238Z"
+    },
+    "papermill": {
+     "duration": 0.016652,
+     "end_time": "2025-03-03T09:56:14.259317",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.242665",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([2., 3.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(c[1:3])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "id": "dd82d96e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.281197Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.280965Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.285149Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.284474Z"
+    },
+    "papermill": {
+     "duration": 0.016481,
+     "end_time": "2025-03-03T09:56:14.286326",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.269845",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([1., 2., 3., 4.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(c[:4])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "9e9c518f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.308751Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.308515Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.312590Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.311968Z"
+    },
+    "papermill": {
+     "duration": 0.016324,
+     "end_time": "2025-03-03T09:56:14.313806",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.297482",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([1., 2.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f[0,:])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "id": "144d645c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.335829Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.335594Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.340021Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.339217Z"
+    },
+    "papermill": {
+     "duration": 0.016841,
+     "end_time": "2025-03-03T09:56:14.341306",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.324465",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([2., 4.])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(f[:,1])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "34065c4d",
+   "metadata": {
+    "papermill": {
+     "duration": 0.01039,
+     "end_time": "2025-03-03T09:56:14.362494",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.352104",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.3. Specify data type of elements\n",
+    "Whenever we create a tensor, PyTorch decides the data type of the elements of the tensor such that the data type can cover all the elements of the tensor. We can override this by specifying the data type while creating the tensor."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "cd1e83f2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.384538Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.384325Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.390615Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.390009Z"
+    },
+    "papermill": {
+     "duration": 0.018615,
+     "end_time": "2025-03-03T09:56:14.391746",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.373131",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "torch.int64\n",
+      "torch.float32\n",
+      "tensor([[1., 2., 3.],\n",
+      "        [4., 5., 6.]])\n",
+      "torch.int64\n",
+      "tensor([[1, 2, 3],\n",
+      "        [4, 5, 6]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "int_tensor = torch.tensor([[1,2,3],[4,5,6]])\n",
+    "print(int_tensor.dtype)\n",
+    "\n",
+    "# What if we changed any one element to floating point number?\n",
+    "int_tensor = torch.tensor([[1,2,3],[4.,5,6]])\n",
+    "print(int_tensor.dtype)\n",
+    "print(int_tensor)\n",
+    "\n",
+    "# This can be overridden as follows\n",
+    "float_tensor = torch.tensor([[1, 2, 3],[4., 5, 6]])\n",
+    "int_tensor = float_tensor.type(torch.int64)\n",
+    "print(int_tensor.dtype)\n",
+    "print(int_tensor)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f9e6afae",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010522,
+     "end_time": "2025-03-03T09:56:14.412907",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.402385",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.4. Tensor to/from NumPy Array\n",
+    "We have mentioned several times that PyTorch Tensors and NumPy arrays are pretty similar. This of course demands the question if it’s possible to convert one data structure into another. Let’s see how we can do this."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "id": "92c99ac9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.435095Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.434888Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.440160Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.439342Z"
+    },
+    "papermill": {
+     "duration": 0.017844,
+     "end_time": "2025-03-03T09:56:14.441365",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.423521",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[[1. 2.]\n",
+      " [3. 4.]]\n",
+      "tensor([[8, 7, 6, 5],\n",
+      "        [4, 3, 2, 1]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Tensor to Array\n",
+    "f_numpy = f.numpy()\n",
+    "print(f_numpy)\n",
+    "\n",
+    "# Array to Tensor\n",
+    "h = np.array([[8,7,6,5],[4,3,2,1]])\n",
+    "h_tensor = torch.from_numpy(h)\n",
+    "print(h_tensor)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "id": "9e5abeb9",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.463516Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.463316Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.482020Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.481125Z"
+    },
+    "papermill": {
+     "duration": 0.03119,
+     "end_time": "2025-03-03T09:56:14.483247",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.452057",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([[ 0,  4,  0],\n",
+      "        [ 8,  0, 12]])\n",
+      "tensor([[ 0,  4,  0],\n",
+      "        [ 8,  0, 12]])\n",
+      "tensor([[ 2,  0,  6],\n",
+      "        [ 0, 10,  0]])\n",
+      "tensor([[ 2,  0,  6],\n",
+      "        [ 0, 10,  0]])\n",
+      "tensor([[ 2,  4,  6],\n",
+      "        [ 8, 10, 12]])\n",
+      "tensor([[ -1,   4,  -9],\n",
+      "        [ 16, -25,  36]])\n",
+      "tensor([[22, 28],\n",
+      "        [49, 64]])\n",
+      "tensor([[0.5000, 1.0000, 1.5000],\n",
+      "        [2.0000, 2.5000, 3.0000]])\n",
+      "tensor([[-1.,  1., -1.],\n",
+      "        [ 1., -1.,  1.]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create tensor\n",
+    "tensor1 = torch.tensor([[1,2,3],[4,5,6]])\n",
+    "tensor2 = torch.tensor([[-1,2,-3],[4,-5,6]])\n",
+    "\n",
+    "# Addition\n",
+    "print(tensor1+tensor2)\n",
+    "# We can also use\n",
+    "print(torch.add(tensor1,tensor2))\n",
+    "\n",
+    "# Subtraction\n",
+    "print(tensor1-tensor2)\n",
+    "# We can also use\n",
+    "print(torch.sub(tensor1,tensor2))\n",
+    "\n",
+    "# Multiplication\n",
+    "# Tensor with Scalar\n",
+    "print(tensor1 * 2)\n",
+    "\n",
+    "# Tensor with another tensor\n",
+    "# Elementwise Multiplication\n",
+    "print(tensor1 * tensor2)\n",
+    "\n",
+    "# Matrix multiplication\n",
+    "tensor3 = torch.tensor([[1,2],[3,4],[5,6]])\n",
+    "print(torch.mm(tensor1,tensor3))\n",
+    "\n",
+    "# Division\n",
+    "# Tensor with scalar\n",
+    "print(tensor1/2)\n",
+    "\n",
+    "# Tensor with another tensor\n",
+    "# Elementwise division\n",
+    "print(tensor1/tensor2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "3b4e2280",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010807,
+     "end_time": "2025-03-03T09:56:14.505118",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.494311",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.6. Broadcasting\n",
+    "* a is a 1-dimensional tensor with shape ([ 3 ]).\n",
+    "* b is a scalar tensor with shape ([ 1 ]).\n",
+    "When adding a and b, PyTorch broadcasts b to match the shape of a, resulting in ([ 1 + 4, 2 + 4, 3 + 4 ])."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "299e16df",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.527847Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.527600Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.532313Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.531476Z"
+    },
+    "papermill": {
+     "duration": 0.017483,
+     "end_time": "2025-03-03T09:56:14.533520",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.516037",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Result of Broadcasting:\n",
+      " tensor([5, 6, 7])\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create two 1-dimensional tensors\n",
+    "a = torch.tensor([1, 2, 3])\n",
+    "b = torch.tensor([4])\n",
+    "\n",
+    "# adding a scalar to a vector\n",
+    "result = a + b\n",
+    "\n",
+    "print(\"Result of Broadcasting:\\n\",result)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "id": "c1296323",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.556275Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.556076Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.561509Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.560880Z"
+    },
+    "papermill": {
+     "duration": 0.018105,
+     "end_time": "2025-03-03T09:56:14.562684",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.544579",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Shape:  torch.Size([3, 3])\n",
+      "\n",
+      "\n",
+      "Result of Broadcasting:\n",
+      " tensor([[5, 6, 7],\n",
+      "        [6, 7, 8],\n",
+      "        [7, 8, 9]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Create two tensors with shapes (1, 3) and (3, 1)\n",
+    "a = torch.tensor([[1, 2, 3]])\n",
+    "b = torch.tensor([[4], [5], [6]])\n",
+    "\n",
+    "# adding tensors of different shapes\n",
+    "result = a + b\n",
+    "print(\"Shape: \", result.shape)\n",
+    "print(\"\\n\")\n",
+    "print(\"Result of Broadcasting:\\n\", result)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0f2af6f9",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010694,
+     "end_time": "2025-03-03T09:56:14.584450",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.573756",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "## 2.7. CPU v/s GPU Tensor\n",
+    "Let’s first see how to create a tensor for GPU."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "598c8d78",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.606840Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.606594Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.843169Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.842456Z"
+    },
+    "papermill": {
+     "duration": 0.249572,
+     "end_time": "2025-03-03T09:56:14.844888",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.595316",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Create a tensor for CPU\n",
+    "# This will occupy CPU RAM\n",
+    "tensor_cpu = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], device='cpu')\n",
+    "\n",
+    "# Create a tensor for GPU\n",
+    "# This will occupy GPU RAM\n",
+    "tensor_gpu = torch.tensor([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]], device='cuda')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 40,
+   "id": "e430962e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.868440Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.868210Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.901042Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.900437Z"
+    },
+    "papermill": {
+     "duration": 0.045822,
+     "end_time": "2025-03-03T09:56:14.902369",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.856547",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# This uses CPU RAM\n",
+    "tensor_cpu = tensor_cpu * 5\n",
+    "\n",
+    "# This uses GPU RAM\n",
+    "# Focus on GPU RAM Consumption\n",
+    "tensor_gpu = tensor_gpu * 5"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "c61de887",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.926262Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.925940Z",
+     "iopub.status.idle": "2025-03-03T09:56:14.930185Z",
+     "shell.execute_reply": "2025-03-03T09:56:14.929280Z"
+    },
+    "papermill": {
+     "duration": 0.017706,
+     "end_time": "2025-03-03T09:56:14.931593",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.913887",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "# Move GPU tensor to CPU\n",
+    "tensor_gpu_cpu = tensor_gpu.to(device='cpu')\n",
+    "\n",
+    "# Move CPU tensor to GPU\n",
+    "tensor_cpu_gpu = tensor_cpu.to(device='cuda')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 42,
+   "id": "7cb2d126",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:14.954916Z",
+     "iopub.status.busy": "2025-03-03T09:56:14.954603Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.085861Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.084634Z"
+    },
+    "papermill": {
+     "duration": 0.144784,
+     "end_time": "2025-03-03T09:56:15.087603",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:14.942819",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "!git config --local user.name \"Rashmin\"\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "d55570f0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.111613Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.111315Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.240012Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.239019Z"
+    },
+    "papermill": {
+     "duration": 0.142287,
+     "end_time": "2025-03-03T09:56:15.241584",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.099297",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "!git config --local user.email \"cocchefkapila@gmail.com\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 44,
+   "id": "3c7b17a2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.265184Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.264928Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.397042Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.396223Z"
+    },
+    "papermill": {
+     "duration": 0.145326,
+     "end_time": "2025-03-03T09:56:15.398453",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.253127",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "On branch master\r\n",
+      "\r\n",
+      "Initial commit\r\n",
+      "\r\n",
+      "Untracked files:\r\n",
+      "  (use \"git add <file>...\" to include in what will be committed)\r\n",
+      "\t\u001b[31m__notebook__.ipynb\u001b[m\r\n",
+      "\t\u001b[31mmnist_0.jpg\u001b[m\r\n",
+      "\t\u001b[31mmnist_1.jpg\u001b[m\r\n",
+      "\r\n",
+      "nothing added to commit but untracked files present (use \"git add\" to track)\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!git commit -m \"Initial commit\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "id": "ca5ae232",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.421770Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.421492Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.426093Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.425426Z"
+    },
+    "papermill": {
+     "duration": 0.017459,
+     "end_time": "2025-03-03T09:56:15.427289",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.409830",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    " a = torch.tensor([[1, 2], [3, 4]])\n",
+    " b = torch.tensor([[5, 6], [7, 8]])\n",
+    " c = torch.tensor([[2, 2], [2, 2]])\n",
+    " d = a + b\n",
+    " e = d * c"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 46,
+   "id": "9e758cf2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.450139Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.449937Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.454842Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.454040Z"
+    },
+    "papermill": {
+     "duration": 0.017601,
+     "end_time": "2025-03-03T09:56:15.455981",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.438380",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([[ 6,  8],\n",
+      "        [10, 12]])\n",
+      "tensor([[12, 16],\n",
+      "        [20, 24]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(d)\n",
+    "print(e)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "id": "b49c5181",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.479178Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.478979Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.482533Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.481955Z"
+    },
+    "papermill": {
+     "duration": 0.016431,
+     "end_time": "2025-03-03T09:56:15.483654",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.467223",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "a = torch.tensor([[1, 2], [3, 4]])\n",
+    "b = torch.tensor([[5, 6], [7, 8]])\n",
+    "c = torch.tensor([[2], [2]])\n",
+    "d = a + b\n",
+    "e = d * c"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "id": "c1992231",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.506639Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.506443Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.510775Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.510132Z"
+    },
+    "papermill": {
+     "duration": 0.017311,
+     "end_time": "2025-03-03T09:56:15.512008",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.494697",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "tensor([[ 6,  8],\n",
+      "        [10, 12]])\n",
+      "tensor([[12, 16],\n",
+      "        [20, 24]])\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(d)\n",
+    "print(e)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "id": "600065a6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.534857Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.534624Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.661924Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.661168Z"
+    },
+    "papermill": {
+     "duration": 0.139966,
+     "end_time": "2025-03-03T09:56:15.663121",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.523155",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "On branch master\r\n",
+      "\r\n",
+      "Initial commit\r\n",
+      "\r\n",
+      "Untracked files:\r\n",
+      "  (use \"git add <file>...\" to include in what will be committed)\r\n",
+      "\t\u001b[31m__notebook__.ipynb\u001b[m\r\n",
+      "\t\u001b[31mmnist_0.jpg\u001b[m\r\n",
+      "\t\u001b[31mmnist_1.jpg\u001b[m\r\n",
+      "\r\n",
+      "nothing added to commit but untracked files present (use \"git add\" to track)\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!git commit -m \"Initial commit\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 50,
+   "id": "e031f77b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.687406Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.687081Z",
+     "iopub.status.idle": "2025-03-03T09:56:15.813825Z",
+     "shell.execute_reply": "2025-03-03T09:56:15.813047Z"
+    },
+    "papermill": {
+     "duration": 0.140279,
+     "end_time": "2025-03-03T09:56:15.815160",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.674881",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Switched to a new branch 'kaggle-work'\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!git checkout -b kaggle-work"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "ba740836",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-03T09:56:15.838533Z",
+     "iopub.status.busy": "2025-03-03T09:56:15.838316Z",
+     "iopub.status.idle": "2025-03-03T09:56:16.074293Z",
+     "shell.execute_reply": "2025-03-03T09:56:16.073404Z"
+    },
+    "papermill": {
+     "duration": 0.249449,
+     "end_time": "2025-03-03T09:56:16.075925",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:15.826476",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "error: src refspec kaggle-work does not match any\r\n",
+      "\u001b[31merror: failed to push some refs to 'https://github.com/rashminnn/Pytorch-Bootcamp'\r\n",
+      "\u001b[m"
+     ]
+    }
+   ],
+   "source": [
+    "!git push --set-upstream origin kaggle-work"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "71149c1a",
+   "metadata": {
+    "papermill": {
+     "duration": 0.011772,
+     "end_time": "2025-03-03T09:56:16.099928",
+     "exception": false,
+     "start_time": "2025-03-03T09:56:16.088156",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "gpu",
+   "dataSources": [],
+   "dockerImageVersionId": 30919,
+   "isGpuEnabled": true,
+   "isInternetEnabled": true,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.12"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 12.413995,
+   "end_time": "2025-03-03T09:56:17.331531",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-03-03T09:56:04.917536",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
